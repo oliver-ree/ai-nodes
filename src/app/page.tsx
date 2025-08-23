@@ -1,103 +1,184 @@
-import Image from "next/image";
+'use client';
+
+import dynamic from 'next/dynamic';
+import { useState } from 'react';
+import { Plus, Save, Play, Zap, FileText, Image, Brain, Settings as SettingsIcon } from 'lucide-react';
+import Settings from '@/components/Settings';
+
+// Dynamically import the WorkflowCanvas to avoid SSR issues
+const WorkflowCanvas = dynamic(() => import('@/components/WorkflowCanvas'), { 
+  ssr: false,
+  loading: () => (
+    <div className="h-screen bg-gray-900 flex items-center justify-center">
+      <div className="text-white">Loading Workflow Editor...</div>
+    </div>
+  )
+});
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [showSettings, setShowSettings] = useState(false);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  return (
+    <div className="h-screen bg-gray-900 text-white flex flex-col">
+      {/* Header */}
+      <header className="bg-gray-800 border-b border-gray-700 px-4 py-3 flex items-center justify-between">
+        <div className="flex items-center space-x-3">
+          <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
+            <Zap className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold">Daisy</h1>
+            <p className="text-xs text-gray-400">AI Workflow Editor</p>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        <div className="flex items-center space-x-2">
+          <button 
+            onClick={() => setShowSettings(true)}
+            className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 rounded text-sm flex items-center space-x-1"
+          >
+            <SettingsIcon className="w-4 h-4" />
+            <span>Settings</span>
+          </button>
+          <button className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 rounded text-sm flex items-center space-x-1">
+            <Save className="w-4 h-4" />
+            <span>Save</span>
+          </button>
+          <button className="px-3 py-1.5 bg-green-600 hover:bg-green-700 rounded text-sm flex items-center space-x-1">
+            <Play className="w-4 h-4" />
+            <span>Run</span>
+          </button>
+        </div>
+      </header>
+
+      {/* Sidebar */}
+      <div className="flex flex-1">
+        <aside className="w-64 bg-gray-800 border-r border-gray-700 p-4">
+          <h2 className="text-sm font-semibold text-gray-300 mb-4">Node Library</h2>
+          
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-xs font-medium text-gray-400 mb-2">INPUTS</h3>
+              <div className="space-y-2">
+                <button 
+                  className="w-full p-3 bg-blue-600/20 border border-blue-600/30 rounded-lg text-left hover:bg-blue-600/30 transition-colors"
+                  draggable
+                  onDragStart={(e) => {
+                    e.dataTransfer.setData('application/reactflow', 'textInput');
+                    e.dataTransfer.effectAllowed = 'move';
+                  }}
+                >
+                  <div className="flex items-center space-x-2">
+                    <FileText className="w-4 h-4 text-blue-400" />
+                    <span className="text-sm">Text Input</span>
+                  </div>
+                  <p className="text-xs text-gray-400 mt-1">Add text content</p>
+                </button>
+
+                <button 
+                  className="w-full p-3 bg-green-600/20 border border-green-600/30 rounded-lg text-left hover:bg-green-600/30 transition-colors"
+                  draggable
+                  onDragStart={(e) => {
+                    e.dataTransfer.setData('application/reactflow', 'imageInput');
+                    e.dataTransfer.effectAllowed = 'move';
+                  }}
+                >
+                  <div className="flex items-center space-x-2">
+                    <Image className="w-4 h-4 text-green-400" />
+                    <span className="text-sm">Image Input</span>
+                  </div>
+                  <p className="text-xs text-gray-400 mt-1">Upload or reference images</p>
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-xs font-medium text-gray-400 mb-2">PROCESSING</h3>
+              <div className="space-y-2">
+                <button 
+                  className="w-full p-3 bg-purple-600/20 border border-purple-600/30 rounded-lg text-left hover:bg-purple-600/30 transition-colors"
+                  draggable
+                  onDragStart={(e) => {
+                    e.dataTransfer.setData('application/reactflow', 'aiPrompt');
+                    e.dataTransfer.effectAllowed = 'move';
+                  }}
+                >
+                  <div className="flex items-center space-x-2">
+                    <Brain className="w-4 h-4 text-purple-400" />
+                    <span className="text-sm">AI Prompt</span>
+                  </div>
+                  <p className="text-xs text-gray-400 mt-1">Generate AI responses</p>
+                </button>
+
+                <button 
+                  className="w-full p-3 bg-yellow-600/20 border border-yellow-600/30 rounded-lg text-left hover:bg-yellow-600/30 transition-colors"
+                  draggable
+                  onDragStart={(e) => {
+                    e.dataTransfer.setData('application/reactflow', 'textProcessor');
+                    e.dataTransfer.effectAllowed = 'move';
+                  }}
+                >
+                  <div className="flex items-center space-x-2">
+                    <Settings className="w-4 h-4 text-yellow-400" />
+                    <span className="text-sm">Text Processor</span>
+                  </div>
+                  <p className="text-xs text-gray-400 mt-1">Transform text content</p>
+                </button>
+
+                <button 
+                  className="w-full p-3 bg-orange-600/20 border border-orange-600/30 rounded-lg text-left hover:bg-orange-600/30 transition-colors"
+                  draggable
+                  onDragStart={(e) => {
+                    e.dataTransfer.setData('application/reactflow', 'imageGeneration');
+                    e.dataTransfer.effectAllowed = 'move';
+                  }}
+                >
+                  <div className="flex items-center space-x-2">
+                    <Zap className="w-4 h-4 text-orange-400" />
+                    <span className="text-sm">Image Generation</span>
+                  </div>
+                  <p className="text-xs text-gray-400 mt-1">Create images with DALL-E</p>
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-xs font-medium text-gray-400 mb-2">OUTPUTS</h3>
+              <div className="space-y-2">
+                <button 
+                  className="w-full p-3 bg-red-600/20 border border-red-600/30 rounded-lg text-left hover:bg-red-600/30 transition-colors"
+                  draggable
+                  onDragStart={(e) => {
+                    e.dataTransfer.setData('application/reactflow', 'output');
+                    e.dataTransfer.effectAllowed = 'move';
+                  }}
+                >
+                  <div className="flex items-center space-x-2">
+                    <Zap className="w-4 h-4 text-red-400" />
+                    <span className="text-sm">Output</span>
+                  </div>
+                  <p className="text-xs text-gray-400 mt-1">Final workflow result</p>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-8">
+            <button className="w-full p-2 bg-gray-700 hover:bg-gray-600 rounded text-sm flex items-center justify-center space-x-1">
+              <Plus className="w-4 h-4" />
+              <span>New Workflow</span>
+            </button>
+          </div>
+        </aside>
+
+        {/* Main Canvas */}
+        <main className="flex-1 relative">
+          <WorkflowCanvas />
+        </main>
+      </div>
+
+      {/* Settings Modal */}
+      <Settings isOpen={showSettings} onClose={() => setShowSettings(false)} />
     </div>
   );
 }
