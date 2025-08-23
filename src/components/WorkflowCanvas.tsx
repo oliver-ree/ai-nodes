@@ -730,6 +730,10 @@ function WorkflowCanvasInner() {
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         zoomOnDoubleClick={false}
+        panOnScroll={true}
+        panOnScrollMode="free"
+        panOnScrollSpeed={0.8}
+        panOnDrag={true}
         defaultViewport={{ x: 0, y: 0, zoom: 0.5 }}
         minZoom={0.1}
         maxZoom={2}

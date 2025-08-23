@@ -1,6 +1,6 @@
 'use client';
 
-import React, { memo, useState, useRef } from 'react';
+import React, { memo, useState, useRef, useEffect } from 'react';
 import { Handle, Position } from 'reactflow';
 import { Image as ImageIcon, Upload, Link, X } from 'lucide-react';
 
@@ -21,6 +21,28 @@ function ImageInputNode({ data, selected }: ImageInputNodeProps) {
   const [showUrlInput, setShowUrlInput] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Detect theme mode
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('daisy-canvas-theme');
+      return saved === 'dark';
+    }
+    return false;
+  });
+
+  // Listen for theme changes
+  useEffect(() => {
+    const handleStorageChange = () => {
+      if (typeof window !== 'undefined') {
+        const saved = localStorage.getItem('daisy-canvas-theme');
+        setIsDarkMode(saved === 'dark');
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -80,7 +102,10 @@ function ImageInputNode({ data, selected }: ImageInputNodeProps) {
         <div className="relative group">
           {/* Title anchored to top-left */}
           <div className="absolute -top-6 left-0 z-10">
-            <span className="text-xs font-medium text-gray-700 bg-white/90 backdrop-blur px-2 py-1 rounded-md shadow-sm">
+            <span 
+              className="text-sm font-medium"
+              style={{ color: isDarkMode ? '#E5E7EB' : '#B5B5B5' }}
+            >
               {data.label}
             </span>
           </div>
