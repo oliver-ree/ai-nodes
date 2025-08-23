@@ -163,11 +163,26 @@ function AIPromptNode({ data, selected }: AIPromptNodeProps) {
           data.onDataChange({ response: responseData.response });
         }
       } else {
-        setResponse(`Error: ${responseData.error}`);
+        // Handle different types of errors
+        if (responseData.type === 'safety_rejection') {
+          const suggestionsList = responseData.suggestions 
+            ? '\n\nSuggestions:\n' + responseData.suggestions.map((s: string, i: number) => `${i + 1}. ${s}`).join('\n')
+            : '';
+          
+          setResponse(`🚫 Safety System Rejection\n\n${responseData.message}${suggestionsList}\n\n💡 Try:\n• Being more specific about what you want\n• Using neutral, constructive language\n• Avoiding sensitive or controversial topics`);
+        } else if (response.status === 400) {
+          setResponse(`⚠️ Request Error\n\n${responseData.error}\n\n💡 This might be due to:\n• Invalid prompt format\n• Unsupported model for your request\n• Missing required parameters`);
+        } else if (response.status === 401) {
+          setResponse(`🔑 Authentication Error\n\n${responseData.error}\n\n💡 Please check your OpenAI API key in Settings.`);
+        } else if (response.status === 402) {
+          setResponse(`💳 Quota Exceeded\n\n${responseData.error}\n\n💡 Please check your OpenAI billing and usage limits.`);
+        } else {
+          setResponse(`❌ Error: ${responseData.error || 'Unknown error occurred'}`);
+        }
       }
     } catch (error) {
       console.error('API call failed:', error);
-      setResponse('Error: Failed to connect to OpenAI API. Please check your connection and API key.');
+      setResponse('🔌 Connection Error\n\nFailed to connect to OpenAI API.\n\n💡 Please check:\n• Your internet connection\n• Your API key is valid\n• OpenAI services are operational');
     } finally {
       setIsProcessing(false);
     }

@@ -73,6 +73,32 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Handle safety system rejections
+    if (error.status === 400 && error.message?.includes('safety system')) {
+      return NextResponse.json(
+        { 
+          error: 'Content rejected by safety system',
+          type: 'safety_rejection',
+          message: 'Your request was rejected by OpenAI\'s safety system. Please review your prompt and ensure it complies with OpenAI\'s usage policies.',
+          suggestions: [
+            'Remove any potentially harmful, offensive, or inappropriate content',
+            'Make your prompt more specific and constructive',
+            'Avoid requesting content that violates OpenAI\'s usage policies',
+            'Try rephrasing your request in a more neutral way'
+          ]
+        },
+        { status: 400 }
+      );
+    }
+
+    // Handle other 400 errors (malformed requests, etc.)
+    if (error.status === 400) {
+      return NextResponse.json(
+        { error: error.message || 'Invalid request format' },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(
       { error: error.message || 'Failed to generate response' },
       { status: 500 }
