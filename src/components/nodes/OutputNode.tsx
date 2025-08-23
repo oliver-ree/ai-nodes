@@ -201,8 +201,8 @@ function OutputNode({ data, selected }: OutputNodeProps) {
   ];
 
   return (
-    <div className={`bg-gray-800 border-2 rounded-lg shadow-lg min-w-64 ${
-      selected ? 'border-red-500' : 'border-red-600/30'
+    <div className={`bg-white border-2 rounded-[24px] shadow-lg min-w-64 ${
+      selected ? 'border-red-500' : 'border-gray-200'
     }`}>
       {/* Header */}
       <div className="bg-red-600/20 px-3 py-2 border-b border-red-600/30 rounded-t-lg">

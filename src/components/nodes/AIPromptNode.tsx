@@ -189,20 +189,20 @@ function AIPromptNode({ data, selected }: AIPromptNodeProps) {
   };
 
   return (
-    <div className={`bg-gray-800 border-2 rounded-lg shadow-lg min-w-64 ${
-      selected ? 'border-purple-500' : 'border-purple-600/30'
+    <div className={`bg-white border-2 rounded-[24px] shadow-lg min-w-64 ${
+      selected ? 'border-purple-500' : 'border-gray-200'
     }`}>
       {/* Header */}
-      <div className="bg-purple-600/20 px-3 py-2 border-b border-purple-600/30 rounded-t-lg">
+      <div className="bg-purple-50 px-3 py-2 border-b border-gray-200 rounded-t-[24px]">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Brain className="w-4 h-4 text-purple-400" />
-            <span className="text-sm font-medium text-purple-100">{data.label}</span>
+            <Brain className="w-4 h-4 text-purple-600" />
+            <span className="text-sm font-medium text-gray-800">{data.label}</span>
           </div>
           <div className="flex items-center space-x-1">
             <button
               onClick={() => setIsExpanded(!isExpanded)}
-              className="text-purple-300 hover:text-white transition-colors"
+              className="text-gray-600 hover:text-purple-600 transition-colors"
             >
               <Settings className="w-3 h-3" />
             </button>
@@ -225,7 +225,7 @@ function AIPromptNode({ data, selected }: AIPromptNodeProps) {
       <div className="p-3 space-y-3">
         {/* Connected Inputs Visual Preview */}
         {connectedInputs.length > 0 && (
-          <div className="bg-gray-700/50 border border-gray-600/50 rounded p-3 space-y-2">
+          <div className="bg-gray-50 border border-gray-200 rounded-xl p-3 space-y-2">
             <div className="flex items-center space-x-2 text-xs text-gray-300 mb-2">
               <span>🔗</span>
               <span>Connected Inputs ({connectedInputs.length})</span>
@@ -330,7 +330,7 @@ function AIPromptNode({ data, selected }: AIPromptNodeProps) {
             value={localPrompt}
             onChange={(e) => setLocalPrompt(e.target.value)}
             placeholder="Enter your AI prompt..."
-            className="w-full h-20 px-2 py-1 bg-gray-700 border border-gray-600 rounded text-sm text-white placeholder-gray-400 resize-none focus:outline-none focus:border-purple-500"
+            className="w-full h-20 px-2 py-1 bg-gray-50 border border-gray-300 rounded-xl text-sm text-gray-800 placeholder-gray-500 resize-none focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
           />
         </div>
 
@@ -342,7 +342,7 @@ function AIPromptNode({ data, selected }: AIPromptNodeProps) {
               <select
                 value={model}
                 onChange={(e) => setModel(e.target.value)}
-                className="w-full px-2 py-1 bg-gray-700 border border-gray-600 rounded text-sm text-white focus:outline-none focus:border-purple-500"
+                className="w-full px-2 py-1 bg-gray-50 border border-gray-300 rounded-lg text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               >
                 <option value="gpt-4o">GPT-4o (Vision + Text)</option>
                 <option value="gpt-4-vision-preview">GPT-4 Vision Preview</option>
@@ -375,7 +375,7 @@ function AIPromptNode({ data, selected }: AIPromptNodeProps) {
                   max="4000"
                   value={maxTokens}
                   onChange={(e) => setMaxTokens(Number(e.target.value))}
-                  className="w-full px-2 py-1 bg-gray-700 border border-gray-600 rounded text-xs text-white focus:outline-none focus:border-purple-500"
+                  className="w-full px-2 py-1 bg-gray-50 border border-gray-300 rounded-lg text-xs text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 />
               </div>
             </div>
@@ -386,8 +386,8 @@ function AIPromptNode({ data, selected }: AIPromptNodeProps) {
         {data.executeWorkflow && data.nodeId && (
           <div className="space-y-2">
             {connectedInputs.length === 0 && (
-              <div className="text-xs bg-gray-900/20 border border-gray-700/30 rounded p-2">
-                <div className="flex items-center space-x-1 text-gray-400">
+              <div className="text-xs bg-blue-50 border border-blue-200 rounded-lg p-2">
+                <div className="flex items-center space-x-1 text-gray-600">
                   <span>🔗</span>
                   <span>Connect nodes to include their data automatically</span>
                 </div>
@@ -422,7 +422,7 @@ function AIPromptNode({ data, selected }: AIPromptNodeProps) {
         {(response || isProcessing) && (
           <div>
             <label className="text-xs text-gray-400 mb-1 block">Response:</label>
-            <div className="min-h-16 p-2 bg-gray-700 border border-gray-600 rounded text-sm text-white">
+            <div className="min-h-16 p-2 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-800">
               {isProcessing ? (
                 <div className="flex items-center space-x-2 text-purple-400">
                   <Loader2 className="w-4 h-4 animate-spin" />

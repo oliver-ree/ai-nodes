@@ -42,15 +42,15 @@ function TextInputNode({ data, selected }: TextInputNodeProps) {
   };
 
   return (
-    <div className={`bg-gray-800 border-2 rounded-lg shadow-lg min-w-48 ${
-      selected ? 'border-blue-500' : 'border-blue-600/30'
+    <div className={`bg-white border-2 rounded-[24px] shadow-lg min-w-48 ${
+      selected ? 'border-blue-500' : 'border-gray-200'
     }`}>
       {/* Header */}
-      <div className="bg-blue-600/20 px-3 py-2 border-b border-blue-600/30 rounded-t-lg">
+      <div className="bg-blue-50 px-3 py-2 border-b border-gray-200 rounded-t-[24px]">
         <div className="flex items-center space-x-2">
-          <FileText className="w-4 h-4 text-blue-400" />
-          <span className="text-sm font-medium text-blue-100">{data.label}</span>
-          <Edit3 className="w-3 h-3 text-blue-300 ml-auto" />
+          <FileText className="w-4 h-4 text-blue-600" />
+          <span className="text-sm font-medium text-gray-800">{data.label}</span>
+          <Edit3 className="w-3 h-3 text-gray-600 ml-auto" />
         </div>
       </div>
 
@@ -70,17 +70,17 @@ function TextInputNode({ data, selected }: TextInputNodeProps) {
                 }
               }}
               placeholder={data.placeholder || 'Enter text...'}
-              className="w-full h-20 px-2 py-1 bg-gray-700 border border-gray-600 rounded text-sm text-white placeholder-gray-400 resize-none focus:outline-none focus:border-blue-500"
+              className="w-full h-20 px-2 py-1 bg-gray-50 border border-gray-300 rounded-xl text-sm text-gray-800 placeholder-gray-500 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               autoFocus
             />
           </form>
         ) : (
           <div
             onDoubleClick={handleDoubleClick}
-            className="min-h-20 p-2 bg-gray-700 border border-gray-600 rounded text-sm text-white cursor-text hover:border-gray-500 transition-colors"
+            className="min-h-20 p-2 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-800 cursor-text hover:bg-gray-100 transition-colors"
           >
             {localValue || (
-              <span className="text-gray-400 italic">
+              <span className="text-gray-500 italic">
                 {data.placeholder || 'Double-click to edit...'}
               </span>
             )}
@@ -88,7 +88,7 @@ function TextInputNode({ data, selected }: TextInputNodeProps) {
         )}
 
         {/* Node Info */}
-        <div className="mt-2 flex items-center justify-between text-xs text-gray-400">
+        <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
           <div className="flex items-center space-x-1">
             <Type className="w-3 h-3" />
             <span>Text</span>
@@ -103,7 +103,7 @@ function TextInputNode({ data, selected }: TextInputNodeProps) {
         position={Position.Right}
         style={{
           background: '#3B82F6',
-          border: '2px solid #1E40AF',
+          border: '2px solid #ffffff',
           width: 12,
           height: 12,
         }}

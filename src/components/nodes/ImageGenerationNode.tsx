@@ -131,8 +131,8 @@ function ImageGenerationNode({ data, selected }: ImageGenerationNodeProps) {
   };
 
   return (
-    <div className={`bg-gray-800 border-2 rounded-lg shadow-lg min-w-80 ${
-      selected ? 'border-yellow-500' : 'border-yellow-600/30'
+    <div className={`bg-white border-2 rounded-[24px] shadow-lg min-w-80 ${
+      selected ? 'border-orange-500' : 'border-gray-200'
     }`}>
       {/* Header */}
       <div className="bg-yellow-600/20 px-3 py-2 border-b border-yellow-600/30 rounded-t-lg">

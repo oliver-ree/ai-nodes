@@ -74,20 +74,20 @@ function ImageInputNode({ data, selected }: ImageInputNodeProps) {
   };
 
   return (
-    <div className={`bg-gray-800 border-2 rounded-lg shadow-lg min-w-48 ${
-      selected ? 'border-green-500' : 'border-green-600/30'
+    <div className={`bg-white border-2 rounded-[24px] shadow-lg min-w-48 ${
+      selected ? 'border-green-500' : 'border-gray-200'
     }`}>
       {/* Header */}
-      <div className="bg-green-600/20 px-3 py-2 border-b border-green-600/30 rounded-t-lg">
+      <div className="bg-green-50 px-3 py-2 border-b border-gray-200 rounded-t-[24px]">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <ImageIcon className="w-4 h-4 text-green-400" />
-            <span className="text-sm font-medium text-green-100">{data.label}</span>
+            <ImageIcon className="w-4 h-4 text-green-600" />
+            <span className="text-sm font-medium text-gray-800">{data.label}</span>
           </div>
           {imageUrl && (
             <button
               onClick={clearImage}
-              className="text-green-300 hover:text-white transition-colors"
+              className="text-gray-600 hover:text-red-600 transition-colors"
             >
               <X className="w-3 h-3" />
             </button>
@@ -103,7 +103,7 @@ function ImageInputNode({ data, selected }: ImageInputNodeProps) {
               <img
                 src={imageUrl}
                 alt="Uploaded"
-                className="w-full h-32 object-cover rounded border border-gray-600"
+                className="w-full h-32 object-cover rounded-xl border border-gray-200"
               />
               <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded flex items-center justify-center">
                 <button
@@ -115,7 +115,7 @@ function ImageInputNode({ data, selected }: ImageInputNodeProps) {
               </div>
             </div>
             {data.description && (
-              <p className="text-xs text-gray-400">{data.description}</p>
+              <p className="text-xs text-gray-500">{data.description}</p>
             )}
           </div>
         ) : (
@@ -123,27 +123,27 @@ function ImageInputNode({ data, selected }: ImageInputNodeProps) {
             onDrop={handleDrop}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
-            className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors ${
+            className={`border-2 border-dashed rounded-xl p-4 text-center transition-colors ${
               dragOver 
-                ? 'border-green-500 bg-green-600/10' 
-                : 'border-gray-600 hover:border-gray-500'
+                ? 'border-green-500 bg-green-50' 
+                : 'border-gray-300 hover:border-gray-400'
             }`}
           >
-            <ImageIcon className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-            <p className="text-xs text-gray-400 mb-2">
+            <ImageIcon className="w-8 h-8 text-gray-500 mx-auto mb-2" />
+            <p className="text-xs text-gray-600 mb-2">
               Drag image here or
             </p>
             <div className="space-y-1">
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="text-xs bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded flex items-center space-x-1 mx-auto"
+                className="text-xs bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded-lg flex items-center space-x-1 mx-auto"
               >
                 <Upload className="w-3 h-3" />
                 <span>Upload</span>
               </button>
               <button
                 onClick={() => setShowUrlInput(!showUrlInput)}
-                className="text-xs bg-gray-600 hover:bg-gray-700 text-white px-2 py-1 rounded flex items-center space-x-1 mx-auto"
+                className="text-xs bg-gray-600 hover:bg-gray-700 text-white px-2 py-1 rounded-lg flex items-center space-x-1 mx-auto"
               >
                 <Link className="w-3 h-3" />
                 <span>URL</span>
@@ -165,18 +165,18 @@ function ImageInputNode({ data, selected }: ImageInputNodeProps) {
                   data.onDataChange({ imageUrl: newImageUrl });
                 }
               }}
-              className="w-full px-2 py-1 bg-gray-700 border border-gray-600 rounded text-xs text-white placeholder-gray-400 focus:outline-none focus:border-green-500"
+              className="w-full px-2 py-1 bg-gray-50 border border-gray-300 rounded-lg text-xs text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
             />
           </div>
         )}
 
         {/* Node Info */}
-        <div className="mt-2 flex items-center justify-between text-xs text-gray-400">
+        <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
           <div className="flex items-center space-x-1">
             <ImageIcon className="w-3 h-3" />
             <span>Image</span>
           </div>
-          {imageUrl && <span className="text-green-400">Ready</span>}
+          {imageUrl && <span className="text-green-600">Ready</span>}
         </div>
       </div>
 
