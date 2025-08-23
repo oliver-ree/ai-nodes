@@ -1,9 +1,10 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useState } from 'react';
-import { Plus, Save, Play, Zap, FileText, Image, Brain, Settings as SettingsIcon } from 'lucide-react';
-import Settings from '@/components/Settings';
+import { useState, useEffect } from 'react';
+import { Plus, Save, Play, Zap, FileText, Image, Brain, Settings, LogOut } from 'lucide-react';
+import SettingsModal from '@/components/Settings';
+import PasswordScreen from '@/components/PasswordScreen';
 
 // Dynamically import the WorkflowCanvas to avoid SSR issues
 const WorkflowCanvas = dynamic(() => import('@/components/WorkflowCanvas'), { 
@@ -17,6 +18,45 @@ const WorkflowCanvas = dynamic(() => import('@/components/WorkflowCanvas'), {
 
 export default function Home() {
   const [showSettings, setShowSettings] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Check for existing authentication on page load
+  useEffect(() => {
+    const checkAuth = () => {
+      const authStatus = localStorage.getItem('daisy-auth');
+      setIsAuthenticated(authStatus === 'authenticated');
+      setIsLoading(false);
+    };
+    
+    checkAuth();
+  }, []);
+
+  const handleAuthenticated = () => {
+    setIsAuthenticated(true);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('daisy-auth');
+    setIsAuthenticated(false);
+  };
+
+  // Show loading spinner while checking auth
+  if (isLoading) {
+    return (
+      <div className="h-screen bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="text-white text-sm">Loading...</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show password screen if not authenticated
+  if (!isAuthenticated) {
+    return <PasswordScreen onAuthenticated={handleAuthenticated} />;
+  }
 
   return (
     <div className="h-screen bg-gray-900 text-white flex flex-col">
@@ -37,7 +77,7 @@ export default function Home() {
             onClick={() => setShowSettings(true)}
             className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 rounded text-sm flex items-center space-x-1"
           >
-            <SettingsIcon className="w-4 h-4" />
+            <Settings className="w-4 h-4" />
             <span>Settings</span>
           </button>
           <button className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 rounded text-sm flex items-center space-x-1">
@@ -47,6 +87,14 @@ export default function Home() {
           <button className="px-3 py-1.5 bg-green-600 hover:bg-green-700 rounded text-sm flex items-center space-x-1">
             <Play className="w-4 h-4" />
             <span>Run</span>
+          </button>
+          <button 
+            onClick={handleLogout}
+            className="px-3 py-1.5 bg-red-600 hover:bg-red-700 rounded text-sm flex items-center space-x-1"
+            title="Logout"
+          >
+            <LogOut className="w-4 h-4" />
+            <span>Logout</span>
           </button>
         </div>
       </header>
@@ -119,7 +167,7 @@ export default function Home() {
                   }}
                 >
                   <div className="flex items-center space-x-2">
-                    <Settings className="w-4 h-4 text-yellow-400" />
+                    <Zap className="w-4 h-4 text-yellow-400" />
                     <span className="text-sm">Text Processor</span>
                   </div>
                   <p className="text-xs text-gray-400 mt-1">Transform text content</p>
@@ -178,7 +226,7 @@ export default function Home() {
       </div>
 
       {/* Settings Modal */}
-      <Settings isOpen={showSettings} onClose={() => setShowSettings(false)} />
+      <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
     </div>
   );
 }
