@@ -74,111 +74,111 @@ function ImageInputNode({ data, selected }: ImageInputNodeProps) {
   };
 
   return (
-    <div className={`bg-white border-2 rounded-[24px] shadow-lg min-w-48 ${
-      selected ? 'border-green-500' : 'border-gray-200'
-    }`}>
-      {/* Header */}
-      <div className="bg-green-50 px-3 py-2 border-b border-gray-200 rounded-t-[24px]">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <ImageIcon className="w-4 h-4 text-green-600" />
-            <span className="text-sm font-medium text-gray-800">{data.label}</span>
+    <div className="relative">
+      {imageUrl ? (
+        /* Image Display - Direct on canvas */
+        <div className="relative group">
+          {/* Title anchored to top-left */}
+          <div className="absolute -top-6 left-0 z-10">
+            <span className="text-xs font-medium text-gray-700 bg-white/90 backdrop-blur px-2 py-1 rounded-md shadow-sm">
+              {data.label}
+            </span>
           </div>
-          {imageUrl && (
+          
+          {/* Main Image */}
+          <img
+            src={imageUrl}
+            alt={data.label}
+            className={`w-64 h-48 object-cover rounded-lg shadow-lg border-2 transition-all duration-200 ${
+              selected ? 'border-green-500 shadow-green-200' : 'border-white/80'
+            }`}
+          />
+          
+          {/* Hover Controls */}
+          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-all duration-200 rounded-lg flex items-center justify-center space-x-2">
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="text-white text-xs bg-green-600/80 hover:bg-green-600 px-3 py-1.5 rounded-lg backdrop-blur flex items-center space-x-1 transition-colors"
+            >
+              <Upload className="w-3 h-3" />
+              <span>Change</span>
+            </button>
             <button
               onClick={clearImage}
-              className="text-gray-600 hover:text-red-600 transition-colors"
+              className="text-white text-xs bg-red-600/80 hover:bg-red-600 px-3 py-1.5 rounded-lg backdrop-blur flex items-center space-x-1 transition-colors"
             >
               <X className="w-3 h-3" />
+              <span>Remove</span>
             </button>
-          )}
+          </div>
         </div>
-      </div>
+      ) : (
+        /* Upload Area - Card style when no image */
+        <div className={`bg-white border-2 rounded-[24px] shadow-lg min-w-48 ${
+          selected ? 'border-green-500' : 'border-gray-200'
+        }`}>
+          {/* Header */}
+          <div className="bg-green-50 px-3 py-2 border-b border-gray-200 rounded-t-[24px]">
+            <div className="flex items-center space-x-2">
+              <ImageIcon className="w-4 h-4 text-green-600" />
+              <span className="text-sm font-medium text-gray-800">{data.label}</span>
+            </div>
+          </div>
 
-      {/* Content */}
-      <div className="p-3">
-        {imageUrl ? (
-          <div className="space-y-2">
-            <div className="relative group">
-              <img
-                src={imageUrl}
-                alt="Uploaded"
-                className="w-full h-32 object-cover rounded-xl border border-gray-200"
-              />
-              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded flex items-center justify-center">
+          {/* Upload Content */}
+          <div className="p-3">
+            <div
+              onDrop={handleDrop}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              className={`border-2 border-dashed rounded-xl p-4 text-center transition-colors ${
+                dragOver 
+                  ? 'border-green-500 bg-green-50' 
+                  : 'border-gray-300 hover:border-gray-400'
+              }`}
+            >
+              <ImageIcon className="w-8 h-8 text-gray-500 mx-auto mb-2" />
+              <p className="text-xs text-gray-600 mb-2">
+                Drag image here or
+              </p>
+              <div className="space-y-1">
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="text-white text-xs bg-green-600 hover:bg-green-700 px-2 py-1 rounded"
+                  className="text-xs bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded-lg flex items-center space-x-1 mx-auto"
                 >
-                  Change
+                  <Upload className="w-3 h-3" />
+                  <span>Upload</span>
+                </button>
+                <button
+                  onClick={() => setShowUrlInput(!showUrlInput)}
+                  className="text-xs bg-gray-600 hover:bg-gray-700 text-white px-2 py-1 rounded-lg flex items-center space-x-1 mx-auto"
+                >
+                  <Link className="w-3 h-3" />
+                  <span>URL</span>
                 </button>
               </div>
             </div>
-            {data.description && (
-              <p className="text-xs text-gray-500">{data.description}</p>
+
+            {showUrlInput && (
+              <div className="mt-2">
+                <input
+                  type="url"
+                  placeholder="Paste image URL..."
+                  value={imageUrl}
+                  onChange={(e) => {
+                    const newImageUrl = e.target.value;
+                    setImageUrl(newImageUrl);
+                    if (data.onDataChange) {
+                      data.onDataChange({ imageUrl: newImageUrl });
+                    }
+                  }}
+                  className="w-full px-2 py-1 bg-gray-50 border border-gray-300 rounded-lg text-xs text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                />
+              </div>
             )}
           </div>
-        ) : (
-          <div
-            onDrop={handleDrop}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            className={`border-2 border-dashed rounded-xl p-4 text-center transition-colors ${
-              dragOver 
-                ? 'border-green-500 bg-green-50' 
-                : 'border-gray-300 hover:border-gray-400'
-            }`}
-          >
-            <ImageIcon className="w-8 h-8 text-gray-500 mx-auto mb-2" />
-            <p className="text-xs text-gray-600 mb-2">
-              Drag image here or
-            </p>
-            <div className="space-y-1">
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="text-xs bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded-lg flex items-center space-x-1 mx-auto"
-              >
-                <Upload className="w-3 h-3" />
-                <span>Upload</span>
-              </button>
-              <button
-                onClick={() => setShowUrlInput(!showUrlInput)}
-                className="text-xs bg-gray-600 hover:bg-gray-700 text-white px-2 py-1 rounded-lg flex items-center space-x-1 mx-auto"
-              >
-                <Link className="w-3 h-3" />
-                <span>URL</span>
-              </button>
-            </div>
-          </div>
-        )}
-
-        {showUrlInput && (
-          <div className="mt-2">
-            <input
-              type="url"
-              placeholder="Paste image URL..."
-              value={imageUrl}
-              onChange={(e) => {
-                const newImageUrl = e.target.value;
-                setImageUrl(newImageUrl);
-                if (data.onDataChange) {
-                  data.onDataChange({ imageUrl: newImageUrl });
-                }
-              }}
-              className="w-full px-2 py-1 bg-gray-50 border border-gray-300 rounded-lg text-xs text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-            />
-          </div>
-        )}
-
-        {/* Node Info */}
-        <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
-          <div className="flex items-center space-x-1">
-            <ImageIcon className="w-3 h-3" />
-            <span>Image</span>
-          </div>
-          {imageUrl && <span className="text-green-600">Ready</span>}
         </div>
-      </div>
+      )}
 
       {/* Hidden file input */}
       <input
@@ -189,15 +189,17 @@ function ImageInputNode({ data, selected }: ImageInputNodeProps) {
         className="hidden"
       />
 
-      {/* Output Handle */}
+      {/* Output Handle - positioned based on content */}
       <Handle
         type="source"
         position={Position.Right}
         style={{
           background: '#10B981',
-          border: '2px solid #047857',
+          border: '2px solid #ffffff',
           width: 12,
           height: 12,
+          right: imageUrl ? '-6px' : 'auto',
+          top: imageUrl ? '50%' : 'auto',
         }}
       />
     </div>

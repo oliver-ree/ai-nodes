@@ -17,7 +17,7 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import '../styles/animated-edges.css';
-import { FileText, Image, Video, Brain, Zap, Monitor, Settings } from 'lucide-react';
+import { FileText, Image, Video, Brain, Zap, Monitor, Settings, Sun, Moon } from 'lucide-react';
 
 import TextInputNode from './nodes/TextInputNode';
 import ImageInputNode from './nodes/ImageInputNode';
@@ -150,6 +150,41 @@ function WorkflowCanvasInner() {
   const [isDraggingFile, setIsDraggingFile] = useState<boolean>(false);
   const [activeEdges, setActiveEdges] = useState<Set<string>>(new Set());
   const [isDraggingNode, setIsDraggingNode] = useState<boolean>(false);
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
+    // Load theme preference from localStorage
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('daisy-canvas-theme');
+      return saved === 'dark';
+    }
+    return false;
+  });
+
+  // Toggle theme function
+  const toggleTheme = useCallback(() => {
+    const newTheme = !isDarkMode;
+    setIsDarkMode(newTheme);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('daisy-canvas-theme', newTheme ? 'dark' : 'light');
+    }
+  }, [isDarkMode]);
+
+  // Theme configuration
+  const themeConfig = {
+    light: {
+      canvasBackground: 'bg-gray-50',
+      gridColor: '#d9d9d9',
+      controlsClass: 'bg-white border-gray-300 shadow-lg',
+      toggleButtonClass: 'bg-gray-100 hover:bg-gray-200 text-gray-700',
+    },
+    dark: {
+      canvasBackground: 'bg-gray-900',
+      gridColor: '#374151',
+      controlsClass: 'bg-gray-800 border-gray-700',
+      toggleButtonClass: 'bg-gray-700 hover:bg-gray-600 text-gray-200',
+    }
+  };
+
+  const currentTheme = themeConfig[isDarkMode ? 'dark' : 'light'];
 
   const onNodesChange = useCallback(
     (changes: NodeChange[]) => {
@@ -700,13 +735,26 @@ function WorkflowCanvasInner() {
         maxZoom={2}
         translateExtent={[[-5000, -5000], [5000, 5000]]}
         nodeExtent={[[-5000, -5000], [5000, 5000]]}
-        className={`bg-gray-900 ${isDraggingNode ? 'dragging' : ''}`}
+        className={`${currentTheme.canvasBackground} ${isDraggingNode ? 'dragging' : ''}`}
         proOptions={{ hideAttribution: true }}
       >
-        <Controls className="bg-gray-800 border-gray-700" />
-        <Background color="#374151" gap={50} size={2} />
+        <Controls className={currentTheme.controlsClass} />
+        <Background color={currentTheme.gridColor} gap={50} size={3} />
         <EdgeMarkers />
       </ReactFlow>
+
+      {/* Theme Toggle Button */}
+      <button
+        onClick={toggleTheme}
+        className={`fixed top-4 right-4 p-3 rounded-full border-2 shadow-lg transition-all duration-200 z-50 ${currentTheme.toggleButtonClass}`}
+        title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+      >
+        {isDarkMode ? (
+          <Sun className="w-5 h-5" />
+        ) : (
+          <Moon className="w-5 h-5" />
+        )}
+      </button>
       
       {/* Context Menu */}
       {contextMenu && (
