@@ -1,10 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: 'export',
+  // Remove static export for Vercel deployment
+  // output: 'export',
   trailingSlash: true,
   skipTrailingSlashRedirect: true,
-  distDir: 'dist',
+  // distDir: 'dist',
   images: {
     unoptimized: true
   },
@@ -14,9 +15,9 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  // GitHub Pages deployment configuration
-  basePath: process.env.NODE_ENV === 'production' ? '/ai-nodes' : '',
-  assetPrefix: process.env.NODE_ENV === 'production' ? '/ai-nodes/' : '',
+  // Remove GitHub Pages config for Vercel
+  // basePath: process.env.NODE_ENV === 'production' ? '/ai-nodes' : '',
+  // assetPrefix: process.env.NODE_ENV === 'production' ? '/ai-nodes/' : '',
 };
 
 export default nextConfig;
