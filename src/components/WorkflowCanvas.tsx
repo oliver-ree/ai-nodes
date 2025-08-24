@@ -27,6 +27,7 @@ import OutputNode from './nodes/OutputNode';
 import ImageGenerationNode from './nodes/ImageGenerationNode';
 import VideoGenerationNode from './nodes/VideoGenerationNode';
 import AnimatedEdge, { EdgeMarkers } from './AnimatedEdge';
+import ContextMenu from './ContextMenu';
 
 const nodeTypes = {
   textInput: TextInputNode,
@@ -58,89 +59,6 @@ const initialEdges: Edge[] = [];
 
 let id = 0;
 const getId = () => `dnd_${id++}`;
-
-// Context Menu Component
-interface ContextMenuProps {
-  x: number;
-  y: number;
-  onNodeCreate: (nodeType: string) => void;
-  onClose: () => void;
-}
-
-function ContextMenu({ x, y, onNodeCreate, onClose }: ContextMenuProps) {
-  const menuRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Element)) {
-        onClose();
-      }
-    };
-
-    const handleKeyPress = (event: KeyboardEvent) => {
-      switch (event.key.toLowerCase()) {
-        case 't': onNodeCreate('textInput'); break;
-        case 'i': onNodeCreate('imageInput'); break;
-        case 'a': onNodeCreate('aiPrompt'); break;
-        case 'g': onNodeCreate('imageGeneration'); break;
-        case 'v': onNodeCreate('videoGeneration'); break;
-        case 'o': onNodeCreate('output'); break;
-        case 'p': onNodeCreate('textProcessor'); break;
-        case 'escape': onClose(); break;
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('keydown', handleKeyPress);
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('keydown', handleKeyPress);
-    };
-  }, [onNodeCreate, onClose]);
-
-  const menuItems = [
-    { type: 'textInput', label: 'Text', icon: FileText, shortcut: 'T' },
-    { type: 'imageInput', label: 'Image', icon: Image, shortcut: 'I' },
-    { type: 'aiPrompt', label: 'AI Prompt', icon: Brain, shortcut: 'A' },
-    { type: 'imageGeneration', label: 'Generate', icon: Zap, shortcut: 'G' },
-    { type: 'textProcessor', label: 'Process', icon: Settings, shortcut: 'P' },
-    { type: 'output', label: 'Output', icon: Monitor, shortcut: 'O' },
-  ];
-
-  return (
-    <div
-      ref={menuRef}
-      className="fixed z-50 bg-gray-800 border border-gray-600 rounded-lg shadow-2xl p-2 min-w-[200px]"
-      style={{ left: x, top: y }}
-    >
-      <div className="text-xs text-gray-400 px-2 py-1 mb-1 border-b border-gray-700">
-        Add Block
-      </div>
-      {menuItems.map((item) => {
-        const Icon = item.icon;
-        return (
-          <button
-            key={item.type}
-            onClick={() => onNodeCreate(item.type)}
-            className="w-full flex items-center justify-between px-3 py-2 text-left hover:bg-gray-700 rounded text-white text-sm transition-colors"
-          >
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-gray-700 rounded flex items-center justify-center">
-                <Icon className="w-4 h-4" />
-              </div>
-              <span>{item.label}</span>
-            </div>
-            <span className="text-xs text-gray-400 font-mono">{item.shortcut}</span>
-          </button>
-        );
-      })}
-      <div className="text-xs text-gray-500 px-2 py-1 mt-2 border-t border-gray-700">
-        Press ESC to close • Use shortcuts
-      </div>
-    </div>
-  );
-}
 
 function WorkflowCanvasInner() {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
