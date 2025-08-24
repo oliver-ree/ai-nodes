@@ -52,6 +52,7 @@ export async function POST(request: NextRequest) {
         headers: {
           'Authorization': `Bearer ${apiKey}`,
           'Content-Type': 'application/json',
+          'X-Runway-Version': '2024-09-13',
         },
         body: JSON.stringify(requestBody),
       });
