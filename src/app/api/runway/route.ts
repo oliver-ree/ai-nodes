@@ -33,23 +33,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Prepare the request body for Runway API
-    const requestBody: any = {
-      model: model,
-      promptText: prompt,
-      seed: Math.floor(Math.random() * 1000000),
-      ...(image && { promptImage: image }),
-    };
-
-    console.log('Runway API Request:', requestBody);
-
     console.log('Attempting Runway ML API call with key:', apiKey.substring(0, 10) + '...');
     
-    // Try multiple Runway ML API endpoints to find the correct one for the API key
+    // Use the correct Runway ML API endpoints from official documentation
     let response;
     let lastError = null;
-    
-    // Use the correct Runway ML API endpoints from official documentation
     let endpoint;
     let requestBody;
     
