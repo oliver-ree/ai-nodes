@@ -379,6 +379,15 @@ function VideoGenerationNode({ data, selected }: VideoGenerationNodeProps) {
             </div>
           )}
 
+          {/* DEBUG: Video URL State */}
+          <div className="p-2 bg-yellow-50 border border-yellow-200 rounded text-xs">
+            <div>Debug Info:</div>
+            <div>videoUrl: {videoUrl ? 'SET' : 'NOT SET'}</div>
+            <div>isGenerating: {isGenerating ? 'true' : 'false'}</div>
+            <div>progress: {progress}%</div>
+            {videoUrl && <div>URL: {videoUrl.substring(0, 50)}...</div>}
+          </div>
+
           {/* Video Preview */}
           {videoUrl && (
             <div className="space-y-2">
@@ -390,6 +399,9 @@ function VideoGenerationNode({ data, selected }: VideoGenerationNodeProps) {
                 controls
                 className="w-full rounded-lg border border-gray-200"
                 style={{ maxHeight: '200px' }}
+                onLoadStart={() => console.log('🎥 Video started loading')}
+                onCanPlay={() => console.log('🎥 Video can play')}
+                onError={(e) => console.error('🎥 Video error:', e)}
               />
               <button
                 onClick={downloadVideo}
@@ -398,6 +410,13 @@ function VideoGenerationNode({ data, selected }: VideoGenerationNodeProps) {
                 <Download className="w-4 h-4" />
                 <span>Download Video</span>
               </button>
+            </div>
+          )}
+          
+          {/* Fallback: Show if video should be ready but isn't showing */}
+          {!videoUrl && !isGenerating && progress === 100 && (
+            <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <p className="text-xs text-yellow-700">⚠️ Video completed but URL not found</p>
             </div>
           )}
         </div>
