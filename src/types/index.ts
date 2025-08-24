@@ -140,3 +140,4 @@ export interface MonitoringDevice {
   createdAt: Date;
   updatedAt: Date;
 }
+
