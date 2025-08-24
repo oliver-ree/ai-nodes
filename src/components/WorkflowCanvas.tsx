@@ -25,6 +25,7 @@ import AIPromptNode from './nodes/AIPromptNode';
 import TextProcessorNode from './nodes/TextProcessorNode';
 import OutputNode from './nodes/OutputNode';
 import ImageGenerationNode from './nodes/ImageGenerationNode';
+import VideoGenerationNode from './nodes/VideoGenerationNode';
 import AnimatedEdge, { EdgeMarkers } from './AnimatedEdge';
 
 const nodeTypes = {
@@ -33,6 +34,7 @@ const nodeTypes = {
   aiPrompt: AIPromptNode,
   textProcessor: TextProcessorNode,
   imageGeneration: ImageGenerationNode,
+  videoGeneration: VideoGenerationNode,
   output: OutputNode,
 };
 
@@ -81,6 +83,7 @@ function ContextMenu({ x, y, onNodeCreate, onClose }: ContextMenuProps) {
         case 'i': onNodeCreate('imageInput'); break;
         case 'a': onNodeCreate('aiPrompt'); break;
         case 'g': onNodeCreate('imageGeneration'); break;
+        case 'v': onNodeCreate('videoGeneration'); break;
         case 'o': onNodeCreate('output'); break;
         case 'p': onNodeCreate('textProcessor'); break;
         case 'escape': onClose(); break;
@@ -485,6 +488,14 @@ function WorkflowCanvasInner() {
           quality: 'standard',
           style: 'vivid'
         },
+        videoGeneration: { 
+          label: 'Video Generation',
+          prompt: 'Generate a video of:',
+          model: 'gen3a_turbo',
+          duration: 5,
+          ratio: '16:9',
+          resolution: '1280x768'
+        },
         output: { 
           label: 'Output',
           value: '',
@@ -615,6 +626,14 @@ function WorkflowCanvasInner() {
             combinedContext += `Generated Image: [Image generated from DALL-E]\n`;
             if (input.data.revisedPrompt) {
               combinedContext += `Original Prompt: ${input.data.revisedPrompt}\n`;
+            }
+          }
+          break;
+        case 'videoGeneration':
+          if (input.data.videoUrl) {
+            combinedContext += `Generated Video: [Video generated from Runway ML]\n`;
+            if (input.data.prompt) {
+              combinedContext += `Video Prompt: ${input.data.prompt}\n`;
             }
           }
           break;

@@ -11,15 +11,27 @@ interface SettingsProps {
 export default function Settings({ isOpen, onClose }: SettingsProps) {
   const [apiKey, setApiKey] = useState('');
   const [showApiKey, setShowApiKey] = useState(false);
+  const [runwayApiKey, setRunwayApiKey] = useState('');
+  const [showRunwayApiKey, setShowRunwayApiKey] = useState(false);
   const [isTestingConnection, setIsTestingConnection] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
-    // Load API key from localStorage on component mount
+    // Load API keys from localStorage on component mount
     const savedApiKey = localStorage.getItem('openai_api_key');
     if (savedApiKey) {
       setApiKey(savedApiKey);
+    }
+    
+    const savedRunwayApiKey = localStorage.getItem('runway_api_key');
+    if (savedRunwayApiKey) {
+      setRunwayApiKey(savedRunwayApiKey);
+    } else {
+      // Set the provided Runway ML API key as default
+      const defaultRunwayKey = 'key_6ddc9865ba18eb872fc8c0fc020ea657958fecf01bbd1e9ac0baff0196f22f8138c74caa89a3ad30f432b6b41b4bedab818b1a4b0703920c73734a7be17e915f';
+      setRunwayApiKey(defaultRunwayKey);
+      localStorage.setItem('runway_api_key', defaultRunwayKey);
     }
   }, []);
 
@@ -29,6 +41,12 @@ export default function Settings({ isOpen, onClose }: SettingsProps) {
       setConnectionStatus('idle');
     } else {
       localStorage.removeItem('openai_api_key');
+    }
+    
+    if (runwayApiKey.trim()) {
+      localStorage.setItem('runway_api_key', runwayApiKey.trim());
+    } else {
+      localStorage.removeItem('runway_api_key');
     }
   };
 
@@ -126,6 +144,40 @@ export default function Settings({ isOpen, onClose }: SettingsProps) {
                 className="text-purple-400 hover:text-purple-300"
               >
                 OpenAI Platform
+              </a>
+            </p>
+          </div>
+
+          {/* Runway ML API Key */}
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Runway ML API Key
+            </label>
+            <div className="relative">
+              <input
+                type={showRunwayApiKey ? 'text' : 'password'}
+                value={runwayApiKey}
+                onChange={(e) => setRunwayApiKey(e.target.value)}
+                placeholder="rml_..."
+                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowRunwayApiKey(!showRunwayApiKey)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
+              >
+                {showRunwayApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+            <p className="text-xs text-gray-400 mt-1">
+              Get your API key from{' '}
+              <a
+                href="https://app.runwayml.com/account"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-purple-400 hover:text-purple-300"
+              >
+                Runway ML Dashboard
               </a>
             </p>
           </div>

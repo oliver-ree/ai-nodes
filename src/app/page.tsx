@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import { useState, useEffect } from 'react';
-import { Plus, Save, Play, Zap, FileText, Image, Brain, Settings, LogOut } from 'lucide-react';
+import { Plus, Save, Play, Zap, FileText, Image, Brain, Settings, LogOut, Video } from 'lucide-react';
 import SettingsModal from '@/components/Settings';
 import PasswordScreen from '@/components/PasswordScreen';
 
@@ -186,6 +186,21 @@ export default function Home() {
                     <span className="text-sm">Image Generation</span>
                   </div>
                   <p className="text-xs text-gray-400 mt-1">Create images with DALL-E</p>
+                </button>
+
+                <button 
+                  className="w-full p-3 bg-pink-600/20 border border-pink-600/30 rounded-lg text-left hover:bg-pink-600/30 transition-colors"
+                  draggable
+                  onDragStart={(e) => {
+                    e.dataTransfer.setData('application/reactflow', 'videoGeneration');
+                    e.dataTransfer.effectAllowed = 'move';
+                  }}
+                >
+                  <div className="flex items-center space-x-2">
+                    <Video className="w-4 h-4 text-pink-400" />
+                    <span className="text-sm">Video Generation</span>
+                  </div>
+                  <p className="text-xs text-gray-400 mt-1">Create videos with Runway ML</p>
                 </button>
               </div>
             </div>
