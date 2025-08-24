@@ -263,7 +263,7 @@ function VideoGenerationNode({ data, selected }: VideoGenerationNodeProps) {
               value={localPrompt}
               onChange={(e) => setLocalPrompt(e.target.value)}
               placeholder="Describe the video you want to generate..."
-              className="w-full p-2 text-sm border border-gray-200 rounded-lg resize-none h-20"
+              className="w-full p-2 text-sm border border-gray-200 rounded-lg resize-none h-20 text-gray-800 placeholder-gray-400"
             />
           </div>
 
@@ -275,7 +275,7 @@ function VideoGenerationNode({ data, selected }: VideoGenerationNodeProps) {
             <select
               value={model}
               onChange={(e) => setModel(e.target.value)}
-              className="w-full p-2 text-sm border border-gray-200 rounded-lg"
+              className="w-full p-2 text-sm border border-gray-200 rounded-lg text-gray-800"
             >
               <option value="gen3a_turbo">Gen-3 Alpha Turbo</option>
               <option value="gen3a">Gen-3 Alpha</option>
@@ -291,7 +291,7 @@ function VideoGenerationNode({ data, selected }: VideoGenerationNodeProps) {
             <select
               value={duration}
               onChange={(e) => setDuration(Number(e.target.value))}
-              className="w-full p-2 text-sm border border-gray-200 rounded-lg"
+              className="w-full p-2 text-sm border border-gray-200 rounded-lg text-gray-800"
             >
               <option value={5}>5 seconds</option>
               <option value={10}>10 seconds</option>
@@ -306,7 +306,7 @@ function VideoGenerationNode({ data, selected }: VideoGenerationNodeProps) {
             <select
               value={ratio}
               onChange={(e) => setRatio(e.target.value)}
-              className="w-full p-2 text-sm border border-gray-200 rounded-lg"
+              className="w-full p-2 text-sm border border-gray-200 rounded-lg text-gray-800"
             >
               <option value="16:9">16:9 (Landscape)</option>
               <option value="9:16">9:16 (Portrait)</option>
