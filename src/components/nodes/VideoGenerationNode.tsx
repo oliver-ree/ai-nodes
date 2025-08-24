@@ -152,27 +152,43 @@ function VideoGenerationNode({ data, selected }: VideoGenerationNodeProps) {
         });
         
         const statusData = await response.json();
+        console.log('Status polling response:', statusData);
         
-        if (statusData.success) {
-          setProgress(statusData.progress || 0);
+        if (response.ok && statusData) {
+          // Handle different possible response structures from Runway ML
+          const currentStatus = statusData.status || statusData.state;
+          const currentProgress = statusData.progress || 0;
+          const videoOutput = statusData.videoUrl || statusData.output || (statusData.outputs && statusData.outputs[0]);
           
-          if (statusData.status === 'completed' && statusData.videoUrl) {
-            setVideoUrl(statusData.videoUrl);
-            setIsGenerating(false);
-            
-            // Update node data
-            if (data.onDataChange) {
-              data.onDataChange(data.nodeId, { 
-                videoUrl: statusData.videoUrl,
-                progress: 100
-              });
+          console.log('Status details:', { currentStatus, currentProgress, videoOutput });
+          setProgress(currentProgress);
+          
+          if (currentStatus === 'completed' || currentStatus === 'succeeded' || currentStatus === 'done') {
+            if (videoOutput) {
+              console.log('Video generation completed! URL:', videoOutput);
+              setVideoUrl(videoOutput);
+              setIsGenerating(false);
+              
+              // Update node data
+              if (data.onDataChange) {
+                data.onDataChange(data.nodeId, { 
+                  videoUrl: videoOutput,
+                  progress: 100
+                });
+              }
+              return;
             }
-            return;
-          } else if (statusData.status === 'failed') {
-            setError('Video generation failed');
+          } else if (currentStatus === 'failed' || currentStatus === 'error') {
+            console.log('Video generation failed:', statusData);
+            setError(`Video generation failed: ${statusData.error || 'Unknown error'}`);
             setIsGenerating(false);
             return;
+          } else if (currentStatus === 'processing' || currentStatus === 'running' || currentStatus === 'pending') {
+            console.log('Still processing...', { status: currentStatus, progress: currentProgress });
+            // Continue polling
           }
+        } else {
+          console.log('Status check error:', statusData);
         }
         
         pollCount++;

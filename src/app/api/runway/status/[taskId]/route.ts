@@ -54,7 +54,12 @@ export async function GET(
     }
 
     const responseData = await response.json();
-    console.log('Runway Status Response:', responseData);
+    console.log('*** RUNWAY STATUS RESPONSE ***');
+    console.log('Full response:', JSON.stringify(responseData, null, 2));
+    console.log('Response status:', responseData.status);
+    console.log('Response progress:', responseData.progress);
+    console.log('Response output:', responseData.output);
+    console.log('Response outputs:', responseData.outputs);
 
     if (!response.ok) {
       return NextResponse.json(
