@@ -36,6 +36,8 @@ function VideoGenerationNode({ data, selected }: VideoGenerationNodeProps) {
   const [resolution, setResolution] = useState(data.resolution || '1280x768');
   const [isGenerating, setIsGenerating] = useState(data.isGenerating || false);
   const [videoUrl, setVideoUrl] = useState(data.videoUrl || '');
+  const [imageUrl, setImageUrl] = useState(data.imageUrl || '');
+  const [generationType, setGenerationType] = useState<'image' | 'video'>('video');
   const [taskId, setTaskId] = useState(data.taskId || '');
   const [progress, setProgress] = useState(data.progress || 0);
   const [error, setError] = useState('');
@@ -111,12 +113,20 @@ function VideoGenerationNode({ data, selected }: VideoGenerationNodeProps) {
       if (responseData.success) {
         setTaskId(responseData.taskId);
         setProgress(responseData.progress || 0);
+        setGenerationType(responseData.generationType || detectedGenerationType);
+        
+        console.log('🎯 Generation type:', responseData.generationType);
         
         // Start polling for completion
         if (responseData.taskId) {
-          pollTaskStatus(responseData.taskId, apiKey);
-        } else if (responseData.videoUrl) {
-          setVideoUrl(responseData.videoUrl);
+          pollTaskStatus(responseData.taskId, apiKey, responseData.generationType);
+        } else if (responseData.outputUrl) {
+          // Handle immediate response
+          if (responseData.generationType === 'video') {
+            setVideoUrl(responseData.outputUrl);
+          } else {
+            setImageUrl(responseData.outputUrl);
+          }
           setIsGenerating(false);
         }
         
@@ -124,6 +134,8 @@ function VideoGenerationNode({ data, selected }: VideoGenerationNodeProps) {
         if (data.onDataChange) {
           data.onDataChange(data.nodeId, { 
             videoUrl: responseData.videoUrl,
+            imageUrl: responseData.imageUrl,
+            generationType: responseData.generationType,
             taskId: responseData.taskId,
             progress: responseData.progress
           });
@@ -139,7 +151,7 @@ function VideoGenerationNode({ data, selected }: VideoGenerationNodeProps) {
     }
   };
 
-  const pollTaskStatus = async (taskId: string, apiKey: string) => {
+  const pollTaskStatus = async (taskId: string, apiKey: string, genType: 'image' | 'video' = 'video') => {
     const maxPolls = 60; // Poll for up to 10 minutes
     let pollCount = 0;
     
@@ -165,11 +177,19 @@ function VideoGenerationNode({ data, selected }: VideoGenerationNodeProps) {
           
           if (currentStatus === 'completed' || currentStatus === 'succeeded' || currentStatus === 'done' || currentStatus === 'SUCCEEDED') {
             if (videoOutput) {
-              console.log('🎉 Video generation completed! URL:', videoOutput);
+              const outputType = genType || generationType;
+              console.log(`🎉 ${outputType.toUpperCase()} generation completed! URL:`, videoOutput);
               console.log('🔄 Updating UI state...');
               
-              // Force update all states
-              setVideoUrl(videoOutput);
+              // Force update all states based on generation type
+              if (outputType === 'video') {
+                setVideoUrl(videoOutput);
+                setImageUrl('');
+              } else {
+                setImageUrl(videoOutput);
+                setVideoUrl('');
+              }
+              
               setIsGenerating(false);
               setProgress(100);
               setError('');
@@ -177,16 +197,18 @@ function VideoGenerationNode({ data, selected }: VideoGenerationNodeProps) {
               // Update node data
               if (data.onDataChange) {
                 data.onDataChange(data.nodeId, { 
-                  videoUrl: videoOutput,
+                  videoUrl: outputType === 'video' ? videoOutput : '',
+                  imageUrl: outputType === 'image' ? videoOutput : '',
+                  generationType: outputType,
                   progress: 100,
                   isGenerating: false
                 });
               }
               
-              console.log('✅ UI state updated - video should now be visible');
+              console.log(`✅ UI state updated - ${outputType} should now be visible`);
               return;
             } else {
-              console.log('⚠️ Status is SUCCEEDED but no video URL found');
+              console.log('⚠️ Status is SUCCEEDED but no output URL found');
             }
           } else if (currentStatus === 'failed' || currentStatus === 'error') {
             console.log('Video generation failed:', statusData);
@@ -219,25 +241,26 @@ function VideoGenerationNode({ data, selected }: VideoGenerationNodeProps) {
     setTimeout(poll, 5000);
   };
 
-  const downloadVideo = async () => {
-    if (!videoUrl) return;
+  const downloadMedia = async (url: string, type: 'video' | 'image') => {
+    if (!url) return;
     
     try {
-      const response = await fetch(videoUrl);
+      const response = await fetch(url);
       const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
+      const downloadUrl = URL.createObjectURL(blob);
       
       const a = document.createElement('a');
-      a.href = url;
-      a.download = `runway-video-${Date.now()}.mp4`;
+      a.href = downloadUrl;
+      const extension = type === 'video' ? 'mp4' : 'jpg';
+      a.download = `runway-${type}-${Date.now()}.${extension}`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       
-      URL.revokeObjectURL(url);
+      URL.revokeObjectURL(downloadUrl);
     } catch (error) {
       console.error('Download failed:', error);
-      setError('Failed to download video');
+      setError(`Failed to download ${type}`);
     }
   };
 
@@ -379,17 +402,19 @@ function VideoGenerationNode({ data, selected }: VideoGenerationNodeProps) {
             </div>
           )}
 
-          {/* DEBUG: Video URL State */}
+          {/* DEBUG: Generation State */}
           <div className="p-2 bg-yellow-50 border border-yellow-200 rounded text-xs">
             <div>Debug Info:</div>
+            <div>Type: {generationType.toUpperCase()}</div>
             <div>videoUrl: {videoUrl ? 'SET' : 'NOT SET'}</div>
+            <div>imageUrl: {imageUrl ? 'SET' : 'NOT SET'}</div>
             <div>isGenerating: {isGenerating ? 'true' : 'false'}</div>
             <div>progress: {progress}%</div>
-            {videoUrl && <div>URL: {videoUrl.substring(0, 50)}...</div>}
+            {(videoUrl || imageUrl) && <div>URL: {(videoUrl || imageUrl).substring(0, 50)}...</div>}
           </div>
 
-          {/* Video Preview */}
-          {videoUrl && (
+          {/* Generated Content Preview */}
+          {generationType === 'video' && videoUrl && (
             <div className="space-y-2">
               <label className="block text-xs font-medium text-gray-600">
                 Generated Video
@@ -405,7 +430,6 @@ function VideoGenerationNode({ data, selected }: VideoGenerationNodeProps) {
                 onError={(e) => {
                   console.error('🎥 Video error:', e);
                   console.log('🎥 Trying alternative loading method...');
-                  // Try opening in new tab as fallback
                 }}
               />
               
@@ -421,7 +445,7 @@ function VideoGenerationNode({ data, selected }: VideoGenerationNodeProps) {
                 </a>
               </div>
               <button
-                onClick={downloadVideo}
+                onClick={() => downloadMedia(videoUrl, 'video')}
                 className="w-full py-2 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm rounded-lg transition-colors flex items-center justify-center space-x-2"
               >
                 <Download className="w-4 h-4" />
@@ -429,11 +453,46 @@ function VideoGenerationNode({ data, selected }: VideoGenerationNodeProps) {
               </button>
             </div>
           )}
+
+          {generationType === 'image' && imageUrl && (
+            <div className="space-y-2">
+              <label className="block text-xs font-medium text-gray-600">
+                Generated Image
+              </label>
+              <img
+                src={imageUrl}
+                alt="Generated image"
+                className="w-full rounded-lg border border-gray-200"
+                style={{ maxHeight: '200px', objectFit: 'contain' }}
+                onLoad={() => console.log('🖼️ Image loaded successfully')}
+                onError={(e) => console.error('🖼️ Image error:', e)}
+              />
+              
+              {/* Fallback: Direct link if image fails to load */}
+              <div className="mt-2">
+                <a 
+                  href={imageUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-xs text-blue-600 hover:text-blue-800 underline"
+                >
+                  🔗 Open image in new tab
+                </a>
+              </div>
+              <button
+                onClick={() => downloadMedia(imageUrl, 'image')}
+                className="w-full py-2 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm rounded-lg transition-colors flex items-center justify-center space-x-2"
+              >
+                <Download className="w-4 h-4" />
+                <span>Download Image</span>
+              </button>
+            </div>
+          )}
           
-          {/* Fallback: Show if video should be ready but isn't showing */}
-          {!videoUrl && !isGenerating && progress === 100 && (
+          {/* Fallback: Show if generation should be ready but content isn't showing */}
+          {!videoUrl && !imageUrl && !isGenerating && progress === 100 && (
             <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <p className="text-xs text-yellow-700">⚠️ Video completed but URL not found</p>
+              <p className="text-xs text-yellow-700">⚠️ Generation completed but content not found</p>
             </div>
           )}
         </div>

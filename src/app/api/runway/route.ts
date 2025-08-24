@@ -62,10 +62,10 @@ export async function POST(request: NextRequest) {
     console.log('Ratio mapping:', ratio, '->', validRatio);
     
     if (image) {
-      // Image to video generation using the correct API structure
+      // IMAGE + TEXT → Generate VIDEO (image-to-video)
       endpoint = 'https://api.dev.runwayml.com/v1/image_to_video';
       
-      console.log('*** IMAGE TO VIDEO GENERATION ***');
+      console.log('*** IMAGE + TEXT → VIDEO GENERATION ***');
       console.log('Image data type:', typeof image);
       console.log('Image data preview:', image.substring(0, 100) + '...');
       console.log('Mapped model:', mappedModel);
@@ -84,20 +84,23 @@ export async function POST(request: NextRequest) {
         }
       };
     } else {
-      // Text-only generation - try text_to_image first as there might not be direct text-to-video
-      // Based on the docs you provided, text_to_image exists but not pure text_to_video
+      // TEXT ONLY → Generate IMAGE (text-to-image)
       endpoint = 'https://api.dev.runwayml.com/v1/text_to_image';
+      
+      console.log('*** TEXT ONLY → IMAGE GENERATION ***');
+      console.log('Prompt:', prompt);
+      console.log('Mapped model:', mappedModel);
+      console.log('Valid ratio:', validRatio);
+      
       requestBody = {
         promptText: prompt,
         ratio: validRatio,
         seed: Math.floor(Math.random() * 4294967295),
-        model: mappedModel === 'gen2' ? 'gen4_image' : 'gen4_image', // Use image model for text-only
+        model: 'gen4_image', // Use image model for text-to-image
         contentModeration: {
           publicFigureThreshold: "auto"
         }
       };
-      
-      console.log('Using text_to_image endpoint for text-only generation');
     }
     
     console.log(`Using correct endpoint: ${endpoint}`);
@@ -156,12 +159,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Return successful response
+    // Return successful response with generation type
+    const generationType = image ? 'video' : 'image';
+    const outputUrl = responseData.output?.[0];
+    
     return NextResponse.json({
       success: true,
       taskId: responseData.id,
       status: responseData.status,
-      videoUrl: responseData.output?.[0],
+      generationType: generationType,
+      videoUrl: generationType === 'video' ? outputUrl : undefined,
+      imageUrl: generationType === 'image' ? outputUrl : undefined,
+      outputUrl: outputUrl,
       progress: responseData.progress || 0,
       estimatedTime: responseData.estimated_time,
     });
