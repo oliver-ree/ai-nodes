@@ -4,14 +4,24 @@ import OpenAI from 'openai';
 export async function POST(request: NextRequest) {
   try {
     const { prompt, size = '1024x1024', quality = 'standard', style = 'vivid' } = await request.json();
-
+    
     // Get API key from Authorization header
     const authHeader = request.headers.get('authorization');
     const apiKey = authHeader?.replace('Bearer ', '');
 
+    console.log('DALLE API Route - API Key present:', !!apiKey);
+    console.log('DALLE API Route - Prompt:', prompt);
+
     if (!apiKey) {
       return NextResponse.json(
         { error: 'OpenAI API key not provided. Please configure your API key in Settings.' },
+        { status: 401 }
+      );
+    }
+
+    if (!apiKey.startsWith('sk-')) {
+      return NextResponse.json(
+        { error: 'Invalid OpenAI API key format. API key should start with sk-' },
         { status: 401 }
       );
     }
