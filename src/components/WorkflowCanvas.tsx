@@ -12,12 +12,12 @@ import ReactFlow, {
   EdgeChange,
   Node,
   NodeChange,
-  useReactFlow,
+
   ReactFlowProvider,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import '../styles/animated-edges.css';
-import { FileText, Image, Video, Brain, Zap, Monitor, Settings, Sun, Moon } from 'lucide-react';
+import { FileText, Image, Brain, Zap, Monitor, Settings, Sun, Moon } from 'lucide-react';
 
 import TextInputNode from './nodes/TextInputNode';
 import ImageInputNode from './nodes/ImageInputNode';

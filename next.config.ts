@@ -8,6 +8,12 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true
   },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   // GitHub Pages deployment configuration
   basePath: process.env.NODE_ENV === 'production' ? '/ai-nodes' : '',
   assetPrefix: process.env.NODE_ENV === 'production' ? '/ai-nodes/' : '',

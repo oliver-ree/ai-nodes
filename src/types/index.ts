@@ -12,7 +12,7 @@ export interface WorkflowNode {
     model?: string;
     temperature?: number;
     maxTokens?: number;
-    [key: string]: any;
+    [key: string]: unknown;
   };
 }
 
@@ -59,8 +59,8 @@ export interface OpenAIRequest {
 export interface NodeData {
   nodeId: string;
   executeWorkflow?: (nodeId: string) => Promise<{ textContext: string; imageContext: string[] }>;
-  onDataChange?: (nodeId: string, data: any) => void;
+  onDataChange?: (nodeId: string, data: unknown) => void;
   activateEdgeFlow?: (sourceNodeId: string) => void;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
