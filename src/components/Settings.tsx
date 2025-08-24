@@ -27,11 +27,6 @@ export default function Settings({ isOpen, onClose }: SettingsProps) {
     const savedRunwayApiKey = localStorage.getItem('runway_api_key');
     if (savedRunwayApiKey) {
       setRunwayApiKey(savedRunwayApiKey);
-    } else {
-      // Set the provided Runway ML API key as default
-      const defaultRunwayKey = 'key_6ddc9865ba18eb872fc8c0fc020ea657958fecf01bbd1e9ac0baff0196f22f8138c74caa89a3ad30f432b6b41b4bedab818b1a4b0703920c73734a7be17e915f';
-      setRunwayApiKey(defaultRunwayKey);
-      localStorage.setItem('runway_api_key', defaultRunwayKey);
     }
   }, []);
 
@@ -158,7 +153,7 @@ export default function Settings({ isOpen, onClose }: SettingsProps) {
                 type={showRunwayApiKey ? 'text' : 'password'}
                 value={runwayApiKey}
                 onChange={(e) => setRunwayApiKey(e.target.value)}
-                placeholder="rml_..."
+                placeholder="key_..."
                 className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 pr-10"
               />
               <button
