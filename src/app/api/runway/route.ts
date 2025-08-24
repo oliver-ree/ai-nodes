@@ -49,24 +49,36 @@ export async function POST(request: NextRequest) {
     let response;
     let lastError = null;
     
-    // Use the standard Runway ML API endpoint structure
-    const endpoint = 'https://api.runwayml.com/v1/image_generations';
+    // Use the correct Runway ML API endpoints from official documentation
+    let endpoint;
+    let requestBody;
     
-    console.log(`Using endpoint: ${endpoint}`);
+    if (image) {
+      // Image to video generation
+      endpoint = 'https://api.dev.runwayml.com/v1/image_to_video';
+      requestBody = {
+        model: model,
+        prompt_text: prompt,
+        init_image: image,
+        motion_bucket_id: 127,
+        seed: Math.floor(Math.random() * 4294967295),
+        fps: 24,
+        ...(duration && { duration: duration })
+      };
+    } else {
+      // Text to video generation (trying image_to_video without init_image first)
+      endpoint = 'https://api.dev.runwayml.com/v1/image_to_video';
+      requestBody = {
+        model: model,
+        prompt_text: prompt,
+        motion_bucket_id: 127,
+        seed: Math.floor(Math.random() * 4294967295),
+        fps: 24,
+        ...(duration && { duration: duration })
+      };
+    }
     
-    // Prepare request body in the correct format for Runway ML
-    const requestBody = {
-      model: model,
-      prompt_text: prompt,
-      ...(image && { init_image: image }),
-      width: resolution.split('x')[0] || 1280,
-      height: resolution.split('x')[1] || 768,
-      guidance_scale: 7,
-      num_inference_steps: 25,
-      seed: Math.floor(Math.random() * 4294967295),
-      ...(duration && { video_length: duration })
-    };
-    
+    console.log(`Using correct endpoint: ${endpoint}`);
     console.log('Runway request body:', JSON.stringify(requestBody, null, 2));
     
     try {

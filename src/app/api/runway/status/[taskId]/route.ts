@@ -28,8 +28,8 @@ export async function GET(
       );
     }
 
-    // Use the standard Runway ML API status endpoint
-    const endpoint = `https://api.runwayml.com/v1/image_generations/${taskId}`;
+    // Use the correct Runway ML API status endpoint (assuming similar pattern)
+    const endpoint = `https://api.dev.runwayml.com/v1/tasks/${taskId}`;
     console.log(`Checking status with endpoint: ${endpoint}`);
     
     let response;
