@@ -397,12 +397,29 @@ function VideoGenerationNode({ data, selected }: VideoGenerationNodeProps) {
               <video
                 src={videoUrl}
                 controls
+                crossOrigin="anonymous"
                 className="w-full rounded-lg border border-gray-200"
                 style={{ maxHeight: '200px' }}
                 onLoadStart={() => console.log('🎥 Video started loading')}
                 onCanPlay={() => console.log('🎥 Video can play')}
-                onError={(e) => console.error('🎥 Video error:', e)}
+                onError={(e) => {
+                  console.error('🎥 Video error:', e);
+                  console.log('🎥 Trying alternative loading method...');
+                  // Try opening in new tab as fallback
+                }}
               />
+              
+              {/* Fallback: Direct link if video fails to load */}
+              <div className="mt-2">
+                <a 
+                  href={videoUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-xs text-blue-600 hover:text-blue-800 underline"
+                >
+                  🔗 Open video in new tab (if player fails)
+                </a>
+              </div>
               <button
                 onClick={downloadVideo}
                 className="w-full py-2 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm rounded-lg transition-colors flex items-center justify-center space-x-2"
