@@ -163,20 +163,30 @@ function VideoGenerationNode({ data, selected }: VideoGenerationNodeProps) {
           console.log('Status details:', { currentStatus, currentProgress, videoOutput });
           setProgress(currentProgress);
           
-          if (currentStatus === 'completed' || currentStatus === 'succeeded' || currentStatus === 'done') {
+          if (currentStatus === 'completed' || currentStatus === 'succeeded' || currentStatus === 'done' || currentStatus === 'SUCCEEDED') {
             if (videoOutput) {
-              console.log('Video generation completed! URL:', videoOutput);
+              console.log('🎉 Video generation completed! URL:', videoOutput);
+              console.log('🔄 Updating UI state...');
+              
+              // Force update all states
               setVideoUrl(videoOutput);
               setIsGenerating(false);
+              setProgress(100);
+              setError('');
               
               // Update node data
               if (data.onDataChange) {
                 data.onDataChange(data.nodeId, { 
                   videoUrl: videoOutput,
-                  progress: 100
+                  progress: 100,
+                  isGenerating: false
                 });
               }
+              
+              console.log('✅ UI state updated - video should now be visible');
               return;
+            } else {
+              console.log('⚠️ Status is SUCCEEDED but no video URL found');
             }
           } else if (currentStatus === 'failed' || currentStatus === 'error') {
             console.log('Video generation failed:', statusData);
