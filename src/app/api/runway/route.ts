@@ -64,6 +64,14 @@ export async function POST(request: NextRequest) {
     if (image) {
       // Image to video generation using the correct API structure
       endpoint = 'https://api.dev.runwayml.com/v1/image_to_video';
+      
+      console.log('*** IMAGE TO VIDEO GENERATION ***');
+      console.log('Image data type:', typeof image);
+      console.log('Image data preview:', image.substring(0, 100) + '...');
+      console.log('Mapped model:', mappedModel);
+      console.log('Duration:', duration, typeof duration);
+      console.log('Valid ratio:', validRatio);
+      
       requestBody = {
         promptImage: image,
         seed: Math.floor(Math.random() * 4294967295),
