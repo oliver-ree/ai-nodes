@@ -44,7 +44,7 @@ export async function GET(
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${apiKey}`,
-            ...(endpoint.includes('content.runwayml.com') && { 'X-Runway-Version': '2024-09-13' }),
+            'X-Runway-Version': '2024-09-13',
           },
         });
         
