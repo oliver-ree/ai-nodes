@@ -43,31 +43,32 @@ export async function POST(request: NextRequest) {
 
     console.log('Runway API Request:', requestBody);
 
-    // Try different Runway ML API endpoints
-    let response;
-    try {
-      // Try the primary endpoint first
-      response = await fetch('https://api.dev.runwayml.com/v1/generate', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json',
-          'X-Runway-Version': '2024-09-13',
-        },
-        body: JSON.stringify(requestBody),
-      });
-    } catch (error) {
-      // Fallback to alternative endpoint
-      response = await fetch('https://content.runwayml.com/generate', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json',
-          'X-Runway-Version': '2024-09-13',
-        },
-        body: JSON.stringify(requestBody),
-      });
-    }
+    console.log('Attempting Runway ML API call with key:', apiKey.substring(0, 10) + '...');
+    
+    // Use the correct Runway ML API endpoint structure
+    const response = await fetch('https://api.runwayml.com/v1/tasks', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+        'X-Runway-Version': '2024-09-13',
+      },
+      body: JSON.stringify({
+        taskType: 'gen3a_turbo',
+        internal: false,
+        options: {
+          name: 'Video Generation Task',
+          seconds: duration,
+          gen3a_turbo: {
+            mode: image ? 'gen3a_turbo.image_to_video' : 'gen3a_turbo.text_to_video',
+            prompt: prompt,
+            ...(image && { init_image: image }),
+            aspect_ratio: ratio,
+            seed: Math.floor(Math.random() * 4294967295),
+          }
+        }
+      }),
+    });
 
     const responseData = await response.json();
     console.log('Runway API Response:', responseData);
