@@ -42,21 +42,32 @@ export async function POST(request: NextRequest) {
     let requestBody;
     
     if (image) {
-      // Image to video generation
+      // Image to video generation using the correct API structure
       endpoint = 'https://api.dev.runwayml.com/v1/image_to_video';
       requestBody = {
+        promptImage: image,
+        seed: Math.floor(Math.random() * 4294967295),
+        model: model,
         promptText: prompt,
-        modelId: model,
-        initImage: image,
-        seed: Math.floor(Math.random() * 4294967295)
+        duration: duration,
+        ratio: `${resolution.split('x')[0]}:${resolution.split('x')[1]}`,
+        contentModeration: {
+          publicFigureThreshold: "auto"
+        }
       };
     } else {
-      // Text-only generation - try minimal structure first
+      // Text-only generation - there might not be a pure text-to-video endpoint
+      // Let's try image_to_video without promptImage for now
       endpoint = 'https://api.dev.runwayml.com/v1/image_to_video';
       requestBody = {
+        seed: Math.floor(Math.random() * 4294967295),
+        model: model,
         promptText: prompt,
-        modelId: model,
-        seed: Math.floor(Math.random() * 4294967295)
+        duration: duration,
+        ratio: `${resolution.split('x')[0]}:${resolution.split('x')[1]}`,
+        contentModeration: {
+          publicFigureThreshold: "auto"
+        }
       };
     }
     
@@ -69,7 +80,7 @@ export async function POST(request: NextRequest) {
         headers: {
           'Authorization': `Bearer ${apiKey}`,
           'Content-Type': 'application/json',
-          'X-Runway-Version': '2024-09-13',
+          'X-Runway-Version': '2024-11-06',
         },
         body: JSON.stringify(requestBody),
       });
