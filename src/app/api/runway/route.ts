@@ -35,29 +35,38 @@ export async function POST(request: NextRequest) {
 
     // Prepare the request body for Runway API
     const requestBody: any = {
-      model,
-      prompt_text: prompt,
-      duration,
-      ratio,
-      resolution,
+      model: model,
+      promptText: prompt,
+      seed: Math.floor(Math.random() * 1000000),
+      ...(image && { promptImage: image }),
     };
-
-    // Add image if provided (for image-to-video)
-    if (image) {
-      requestBody.prompt_image = image;
-    }
 
     console.log('Runway API Request:', requestBody);
 
-    // Call Runway ML API
-    const response = await fetch('https://api.runwayml.com/v1/generate', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(requestBody),
-    });
+    // Try different Runway ML API endpoints
+    let response;
+    try {
+      // Try the primary endpoint first
+      response = await fetch('https://api.dev.runwayml.com/v1/generate', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      });
+    } catch (error) {
+      // Fallback to alternative endpoint
+      response = await fetch('https://content.runwayml.com/generate', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+          'X-Runway-Version': '2024-09-13',
+        },
+        body: JSON.stringify(requestBody),
+      });
+    }
 
     const responseData = await response.json();
     console.log('Runway API Response:', responseData);
