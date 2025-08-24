@@ -45,24 +45,18 @@ export async function POST(request: NextRequest) {
       // Image to video generation
       endpoint = 'https://api.dev.runwayml.com/v1/image_to_video';
       requestBody = {
-        model: model,
-        prompt_text: prompt,
-        init_image: image,
-        motion_bucket_id: 127,
-        seed: Math.floor(Math.random() * 4294967295),
-        fps: 24,
-        ...(duration && { duration: duration })
+        promptText: prompt,
+        modelId: model,
+        initImage: image,
+        seed: Math.floor(Math.random() * 4294967295)
       };
     } else {
-      // Text to video generation (trying image_to_video without init_image first)
+      // Text-only generation - try minimal structure first
       endpoint = 'https://api.dev.runwayml.com/v1/image_to_video';
       requestBody = {
-        model: model,
-        prompt_text: prompt,
-        motion_bucket_id: 127,
-        seed: Math.floor(Math.random() * 4294967295),
-        fps: 24,
-        ...(duration && { duration: duration })
+        promptText: prompt,
+        modelId: model,
+        seed: Math.floor(Math.random() * 4294967295)
       };
     }
     
