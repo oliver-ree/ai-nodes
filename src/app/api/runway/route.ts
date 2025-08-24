@@ -49,43 +49,43 @@ export async function POST(request: NextRequest) {
     let response;
     let lastError = null;
     
-    const endpoints = [
-      'https://content.runwayml.com/generate',
-      'https://api.dev.runwayml.com/v1/generate', 
-      'https://api.runwayml.com/v1/generate'
-    ];
+    // Use the standard Runway ML API endpoint structure
+    const endpoint = 'https://api.runwayml.com/v1/image_generations';
     
-    for (const endpoint of endpoints) {
-      try {
-        console.log(`Trying endpoint: ${endpoint}`);
-        
-        response = await fetch(endpoint, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${apiKey}`,
-            'Content-Type': 'application/json',
-            'X-Runway-Version': '2024-09-13',
-          },
-          body: JSON.stringify({
-            model: model,
-            prompt: prompt,
-            ...(image && { image: image }),
-            seconds: duration,
-            aspect_ratio: ratio,
-            seed: Math.floor(Math.random() * 4294967295),
-          }),
-        });
-        
-        // If we get a response that's not a hostname error, use this endpoint
-        if (response.status !== 403 && !response.url.includes('error')) {
-          console.log(`Success with endpoint: ${endpoint}`);
-          break;
-        }
-      } catch (error: any) {
-        console.log(`Failed with endpoint ${endpoint}:`, error.message);
-        lastError = error;
-        continue;
-      }
+    console.log(`Using endpoint: ${endpoint}`);
+    
+    // Prepare request body in the correct format for Runway ML
+    const requestBody = {
+      model: model,
+      prompt_text: prompt,
+      ...(image && { init_image: image }),
+      width: resolution.split('x')[0] || 1280,
+      height: resolution.split('x')[1] || 768,
+      guidance_scale: 7,
+      num_inference_steps: 25,
+      seed: Math.floor(Math.random() * 4294967295),
+      ...(duration && { video_length: duration })
+    };
+    
+    console.log('Runway request body:', JSON.stringify(requestBody, null, 2));
+    
+    try {
+      response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+          'X-Runway-Version': '2024-09-13',
+        },
+        body: JSON.stringify(requestBody),
+      });
+      
+      console.log('Response status:', response.status);
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+      
+    } catch (error: any) {
+      console.log(`Network error with endpoint ${endpoint}:`, error.message);
+      lastError = error;
     }
     
     if (!response) {

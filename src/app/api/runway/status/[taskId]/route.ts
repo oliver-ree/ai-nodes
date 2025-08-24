@@ -28,35 +28,29 @@ export async function GET(
       );
     }
 
-    // Try multiple endpoints to find the correct one for this API key
-    let response;
-    const endpoints = [
-      `https://content.runwayml.com/tasks/${taskId}`,
-      `https://api.dev.runwayml.com/v1/tasks/${taskId}`,
-      `https://api.runwayml.com/v1/tasks/${taskId}`
-    ];
+    // Use the standard Runway ML API status endpoint
+    const endpoint = `https://api.runwayml.com/v1/image_generations/${taskId}`;
+    console.log(`Checking status with endpoint: ${endpoint}`);
     
-    for (const endpoint of endpoints) {
-      try {
-        console.log(`Checking status with endpoint: ${endpoint}`);
-        
-        response = await fetch(endpoint, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${apiKey}`,
-            'X-Runway-Version': '2024-09-13',
-          },
-        });
-        
-        // If we get a successful response, use this endpoint
-        if (response.status !== 403 && !response.url.includes('error')) {
-          console.log(`Status check success with endpoint: ${endpoint}`);
-          break;
-        }
-      } catch (error) {
-        console.log(`Status check failed with endpoint ${endpoint}`);
-        continue;
-      }
+    let response;
+    try {
+      response = await fetch(endpoint, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'X-Runway-Version': '2024-09-13',
+        },
+      });
+      
+      console.log('Status response status:', response.status);
+      console.log('Status response headers:', Object.fromEntries(response.headers.entries()));
+      
+    } catch (error: any) {
+      console.log(`Status check failed with endpoint ${endpoint}:`, error.message);
+      return NextResponse.json(
+        { error: 'Failed to check task status', details: error.message },
+        { status: 503 }
+      );
     }
 
     const responseData = await response.json();
