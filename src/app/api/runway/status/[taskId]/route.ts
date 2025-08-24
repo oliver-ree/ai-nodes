@@ -28,29 +28,14 @@ export async function GET(
       );
     }
 
-    // Call Runway ML API to check task status - Try multiple endpoints
-    let response;
-    try {
-      // Try primary endpoint first
-      response = await fetch(`https://api.dev.runwayml.com/v1/tasks/${taskId}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json',
-          'X-Runway-Version': '2024-09-13',
-        },
-      });
-    } catch (error) {
-      // Fallback endpoint
-      response = await fetch(`https://content.runwayml.com/tasks/${taskId}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json',
-          'X-Runway-Version': '2024-09-13',
-        },
-      });
-    }
+    // Call Runway ML API to check task status
+    const response = await fetch(`https://api.runwayml.com/v1/tasks/${taskId}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'X-Runway-Version': '2024-09-13',
+      },
+    });
 
     const responseData = await response.json();
     console.log('Runway Status Response:', responseData);
