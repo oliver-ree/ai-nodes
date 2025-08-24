@@ -41,16 +41,36 @@ export async function POST(request: NextRequest) {
     let endpoint;
     let requestBody;
     
+    // Map model names to valid Runway ML model IDs
+    const validModels = {
+      'gen3a_turbo': 'gen3a_turbo',
+      'Gen-3 Alpha Turbo': 'gen3a_turbo',
+      'Gen-3 Alpha': 'gen3a_turbo', 
+      'Gen-2': 'gen2',
+      'gen2': 'gen2'
+    };
+    
+    const mappedModel = validModels[model] || 'gen3a_turbo'; // default fallback
+    console.log('Model mapping:', model, '->', mappedModel);
+    
+    // Ensure valid ratio format
+    const validRatio = ratio === '16:9' ? '1280:720' : 
+                      ratio === '9:16' ? '720:1280' : 
+                      ratio === '1:1' ? '1024:1024' :
+                      `${resolution.split('x')[0]}:${resolution.split('x')[1]}`;
+    
+    console.log('Ratio mapping:', ratio, '->', validRatio);
+    
     if (image) {
       // Image to video generation using the correct API structure
       endpoint = 'https://api.dev.runwayml.com/v1/image_to_video';
       requestBody = {
         promptImage: image,
         seed: Math.floor(Math.random() * 4294967295),
-        model: model,
+        model: mappedModel,
         promptText: prompt,
         duration: duration,
-        ratio: `${resolution.split('x')[0]}:${resolution.split('x')[1]}`,
+        ratio: validRatio,
         contentModeration: {
           publicFigureThreshold: "auto"
         }
@@ -61,10 +81,10 @@ export async function POST(request: NextRequest) {
       endpoint = 'https://api.dev.runwayml.com/v1/image_to_video';
       requestBody = {
         seed: Math.floor(Math.random() * 4294967295),
-        model: model,
+        model: mappedModel,
         promptText: prompt,
         duration: duration,
-        ratio: `${resolution.split('x')[0]}:${resolution.split('x')[1]}`,
+        ratio: validRatio,
         contentModeration: {
           publicFigureThreshold: "auto"
         }
@@ -97,14 +117,31 @@ export async function POST(request: NextRequest) {
       throw lastError || new Error('All API endpoints failed');
     }
 
-    const responseData = await response.json();
-    console.log('Runway API Response:', responseData);
+    const responseText = await response.text();
+    console.log('Runway API Response (raw text):', responseText);
+    
+    let responseData;
+    try {
+      responseData = JSON.parse(responseText);
+      console.log('Runway API Response (parsed):', responseData);
+    } catch (e) {
+      console.log('Failed to parse response as JSON:', e);
+      responseData = { error: 'Invalid JSON response', rawResponse: responseText };
+    }
 
     if (!response.ok) {
+      console.log('API Error Details:', {
+        status: response.status,
+        statusText: response.statusText,
+        headers: Object.fromEntries(response.headers.entries()),
+        responseData: responseData
+      });
+      
       return NextResponse.json(
         { 
-          error: responseData.error || `Runway API error: ${response.status}`,
-          details: responseData.message || 'Unknown error from Runway API'
+          error: responseData.error || responseData.message || `Runway API error: ${response.status}`,
+          details: responseData.details || responseData.rawResponse || 'Unknown error from Runway API',
+          fullError: responseData
         },
         { status: response.status }
       );
