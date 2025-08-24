@@ -76,19 +76,20 @@ export async function POST(request: NextRequest) {
         }
       };
     } else {
-      // Text-only generation - there might not be a pure text-to-video endpoint
-      // Let's try image_to_video without promptImage for now
-      endpoint = 'https://api.dev.runwayml.com/v1/image_to_video';
+      // Text-only generation - try text_to_image first as there might not be direct text-to-video
+      // Based on the docs you provided, text_to_image exists but not pure text_to_video
+      endpoint = 'https://api.dev.runwayml.com/v1/text_to_image';
       requestBody = {
-        seed: Math.floor(Math.random() * 4294967295),
-        model: mappedModel,
         promptText: prompt,
-        duration: duration,
         ratio: validRatio,
+        seed: Math.floor(Math.random() * 4294967295),
+        model: mappedModel === 'gen2' ? 'gen4_image' : 'gen4_image', // Use image model for text-only
         contentModeration: {
           publicFigureThreshold: "auto"
         }
       };
+      
+      console.log('Using text_to_image endpoint for text-only generation');
     }
     
     console.log(`Using correct endpoint: ${endpoint}`);
