@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Handle, Position } from '@xyflow/react';
+import { Handle, Position } from 'reactflow';
 import { ChevronDown, ChevronRight, Play, Download, Video, Clock } from 'lucide-react';
 
 interface VideoGenerationNodeData {
