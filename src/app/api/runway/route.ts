@@ -45,30 +45,52 @@ export async function POST(request: NextRequest) {
 
     console.log('Attempting Runway ML API call with key:', apiKey.substring(0, 10) + '...');
     
-    // Use the correct Runway ML API endpoint structure
-    const response = await fetch('https://api.runwayml.com/v1/tasks', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-        'X-Runway-Version': '2024-09-13',
-      },
-      body: JSON.stringify({
-        taskType: 'gen3a_turbo',
-        internal: false,
-        options: {
-          name: 'Video Generation Task',
-          seconds: duration,
-          gen3a_turbo: {
-            mode: image ? 'gen3a_turbo.image_to_video' : 'gen3a_turbo.text_to_video',
+    // Try multiple Runway ML API endpoints to find the correct one for the API key
+    let response;
+    let lastError = null;
+    
+    const endpoints = [
+      'https://content.runwayml.com/generate',
+      'https://api.dev.runwayml.com/v1/generate', 
+      'https://api.runwayml.com/v1/generate'
+    ];
+    
+    for (const endpoint of endpoints) {
+      try {
+        console.log(`Trying endpoint: ${endpoint}`);
+        
+        response = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${apiKey}`,
+            'Content-Type': 'application/json',
+            ...(endpoint.includes('content.runwayml.com') && { 'X-Runway-Version': '2024-09-13' }),
+          },
+          body: JSON.stringify({
+            model: model,
             prompt: prompt,
-            ...(image && { init_image: image }),
+            ...(image && { image: image }),
+            seconds: duration,
             aspect_ratio: ratio,
             seed: Math.floor(Math.random() * 4294967295),
-          }
+          }),
+        });
+        
+        // If we get a response that's not a hostname error, use this endpoint
+        if (response.status !== 403 && !response.url.includes('error')) {
+          console.log(`Success with endpoint: ${endpoint}`);
+          break;
         }
-      }),
-    });
+      } catch (error: any) {
+        console.log(`Failed with endpoint ${endpoint}:`, error.message);
+        lastError = error;
+        continue;
+      }
+    }
+    
+    if (!response) {
+      throw lastError || new Error('All API endpoints failed');
+    }
 
     const responseData = await response.json();
     console.log('Runway API Response:', responseData);
