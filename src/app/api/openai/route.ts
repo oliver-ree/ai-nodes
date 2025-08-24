@@ -9,9 +9,20 @@ export async function POST(request: NextRequest) {
     const authHeader = request.headers.get('authorization');
     const apiKey = authHeader?.replace('Bearer ', '');
 
+    console.log('API Route - Headers:', Object.fromEntries(request.headers.entries()));
+    console.log('API Route - API Key present:', !!apiKey);
+    console.log('API Route - API Key length:', apiKey?.length || 0);
+
     if (!apiKey) {
       return NextResponse.json(
         { error: 'OpenAI API key not provided. Please configure your API key in Settings.' },
+        { status: 401 }
+      );
+    }
+
+    if (!apiKey.startsWith('sk-')) {
+      return NextResponse.json(
+        { error: 'Invalid OpenAI API key format. API key should start with sk-' },
         { status: 401 }
       );
     }
@@ -57,7 +68,21 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error: any) {
-    console.error('OpenAI API Error:', error);
+    console.error('OpenAI API Error Details:', {
+      message: error.message,
+      code: error.code,
+      status: error.status,
+      type: error.type,
+      stack: error.stack
+    });
+    
+    // Connection/Network errors
+    if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND' || error.name === 'TypeError') {
+      return NextResponse.json(
+        { error: 'Failed to connect to OpenAI API. Please check your internet connection and try again.' },
+        { status: 503 }
+      );
+    }
     
     if (error.code === 'insufficient_quota') {
       return NextResponse.json(
@@ -66,9 +91,9 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    if (error.code === 'invalid_api_key') {
+    if (error.code === 'invalid_api_key' || error.status === 401) {
       return NextResponse.json(
-        { error: 'Invalid OpenAI API key.' },
+        { error: 'Invalid OpenAI API key. Please check your API key in Settings.' },
         { status: 401 }
       );
     }
@@ -100,7 +125,10 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { error: error.message || 'Failed to generate response' },
+      { 
+        error: `Connection Error: ${error.message || 'Failed to connect to OpenAI API'}`,
+        details: 'Please check your internet connection, API key, and OpenAI service status.'
+      },
       { status: 500 }
     );
   }
@@ -113,7 +141,7 @@ export async function OPTIONS() {
     headers: {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     },
   });
 }
